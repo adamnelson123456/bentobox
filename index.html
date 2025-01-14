@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bento Box Design with Draggable Cards</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+  
+  <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        color: #333;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .navbar {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #fff;
+        padding: 10px 20px;
+        border-radius: 25px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: fit-content;
+        opacity: 0; /* Hidden initially for GSAP animation */
+    }
+
+    .navbar .links {
+        display: flex;
+        gap: 15px;
+    }
+
+    .navbar .links a {
+        text-decoration: none;
+        color: #333;
+        font-size: 14px;
+        font-weight: 500;
+        padding: 5px 10px;
+        border-radius: 8px;
+        transition: 0.3s;
+    }
+
+    .navbar .links a:hover {
+        background-color: #e6e6e6;
+        color: #007bff;
+    }
+
+    .container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        max-width: 1000px;
+        margin: 100px auto 0;
+        opacity: 0; /* Hidden initially for GSAP animation */
+    }
+
+    .card {
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 15px;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: grab;
+        user-select: none;
+
+        /* Add the gradient animation */
+        background: linear-gradient(120deg, #d3eafc, #fce4ec, #e0f7fa);
+        background-size: 200% 200%;
+        animation: moveGradient 10s infinite alternate ease-in-out;
+    }
+
+    /* Custom gradient backgrounds for specific cards */
+    .card.profile {
+        background: linear-gradient(120deg, #d3eafc, #fce4ec, #ffebee);
+    }
+
+    .card.spotify {
+        background: linear-gradient(120deg, #e0f7fa, #fbe9e7, #f3e5f5);
+    }
+
+    .card.twitter {
+        background: linear-gradient(120deg, #ede7f6, #e8f5e9, #fffde7);
+    }
+
+    .card.projects {
+        background: linear-gradient(120deg, #f3e5f5, #ffebee, #e3f2fd);
+    }
+
+    .card.new-feature {
+        background: linear-gradient(120deg, #fffde7, #e3f2fd, #ede7f6);
+    }
+
+    .card.blog {
+        background: linear-gradient(120deg, #e1f5fe, #f3e5f5, #ede7f6);
+    }
+
+    .card.subscription {
+        background: linear-gradient(120deg, #ede7f6, #e8eaf6, #d3eafc);
+    }
+
+    /* Keyframes for gradient animation */
+    @keyframes moveGradient {
+        0% {
+            background-position: 0% 50%;
+        }
+        100% {
+            background-position: 100% 50%;
+        }
+    }
+
+    .card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .card:active {
+        cursor: grabbing;
+    }
+
+    .toggle-btn {
+        background: #e6e6e6;
+        border: none;
+        border-radius: 20px;
+        padding: 5px 10px;
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+
+    .card h3 {
+        font-size: 18px;
+        margin: 10px 0;
+    }
+
+    .card p {
+        font-size: 14px;
+        margin: 10px 0;
+    }
+
+    .card a {
+        text-decoration: none;
+        background-color: #007bff;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: 0.3s;
+    }
+
+    .card a:hover {
+        background-color: #0056b3; /* Darker blue on hover */
+    }
+
+    .email-input {
+        width: 80%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+    }
+
+    .subscribe-btn {
+        background-color: #ff9f00;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        color: white;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s ease;
+    }
+
+    .subscribe-btn:hover {
+        background-color: #cc7a00; /* Darker orange on hover */
+    }
+
+    /* Card Grid Adjustments */
+    .card.profile {
+        grid-column: span 2;
+    }
+
+    .card.spotify {
+        grid-column: span 1;
+    }
+
+    .card.twitter {
+        grid-column: span 1;
+    }
+
+    .card.projects {
+        grid-column: span 1;
+    }
+
+    .card.new-feature {
+        grid-column: span 1;
+    }
+
+    .card.blog {
+        grid-column: span 2;
+    }
+
+    .card.subscription {
+        grid-column: span 4;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .dragging {
+        opacity: 1;
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+        transform: scale(1.1);
+        z-index: 1000;
+    }
+
+    .sortable-ghost {
+        display: none;
+    }
+</style>
+
+
+
+</head>
+<body>
+  <div class="navbar">
+    <div class="links">
+      <a href="#all">All</a>
+      <a href="#about">About</a>
+      <a href="#projects">Projects</a>
+      <a href="#media">Media</a>
+    </div>
+  </div>
+
+  <div class="container" id="bento-box">
+    <div class="card profile">
+      <button class="toggle-btn">Toggle Lockdown</button>
+      <img src="https://via.placeholder.com/60" alt="Profile Picture">
+      <h3>I'm Adam!</h3>
+      <p>An ex-monk social media wiz.</p>
+    </div>
+
+    <div class="card spotify">
+      <h3>Let's jam out 🎵</h3>
+      <p>Offline. Last played <strong>I Don't Belong</strong> by Fontaines D.C.</p>
+    </div>
+
+    <div class="card twitter">
+      <h3>Twitter</h3>
+      <p>Check out the latest tweets!</p>
+      <a href="#">Go to Twitter</a>
+    </div>
+
+    <div class="card projects">
+      <h3>Projects</h3>
+      <p>Explore exciting projects!</p>
+      <a href="#">View Projects</a>
+    </div>
+
+    <div class="card new-feature">
+      <h3>New Feature</h3>
+      <p>Details about a new feature or update!</p>
+      <a href="#">Learn more</a>
+    </div>
+
+    <div class="card blog">
+      <h3>How it started vs. how it's going</h3>
+      <p>A short personal history on design and development.</p>
+      <a href="#">Read more</a>
+    </div>
+
+    <div class="card subscription">
+      <h3>Shall I keep you in the loop?</h3>
+      <p>Content includes articles, access to products, and learnings.</p>
+      <input class="email-input" type="email" placeholder="Email address">
+      <button class="subscribe-btn">Subscribe</button>
+      <p>You'll be subscriber number <strong>537</strong>.</p>
+    </div>
+  </div>
+
+  <script>
+    // GSAP animations on page load
+    gsap.to(".navbar", { duration: 1, y: 0, opacity: 1, ease: "power2.out" });
+    gsap.to(".container", { duration: 1.5, opacity: 1, ease: "power2.out", delay: 0.5 });
+    gsap.from(".card", {
+      duration: 1,
+      y: 50,
+      opacity: 0,
+      stagger: 0.2,
+      ease: "power2.out",
+      delay: 1,
+    });
+
+    const bentoBox = document.getElementById("bento-box");
+
+    // Initialize Sortable.js with GSAP integration
+    Sortable.create(bentoBox, {
+        animation: 150, // Smooth transition for card movement
+        ghostClass: "sortable-ghost", // Class for the placeholder
+        chosenClass: "dragging", // Style for the dragged card
+        dragClass: "dragging", // Class applied while dragging
+        swapThreshold: 0.5, // Move cards when dragged over 50% of another
+        emptyInsertThreshold: 50, // Buffer for empty space auto-insertion
+
+        onStart: (evt) => {
+            // Add visual feedback for the dragged card
+            gsap.to(evt.item, {
+                scale: 1.1,
+                zIndex: 10,
+                boxShadow: "0 10px 15px rgba(0, 0, 0, 0.2)",
+                duration: 0.2,
+            });
+            evt.item.classList.add("dragging");
+        },
+
+        onMove: (evt) => {
+            // Ensure live rearrangement of cards
+            const dragged = evt.dragged; // The currently dragged element
+            const related = evt.related; // The element being interacted with
+            const willInsertAfter = evt.willInsertAfter; // Position logic
+
+            if (related) {
+                // Dynamically adjust neighboring cards to shift out of the way
+                gsap.to(related, {
+                    x: willInsertAfter ? 10 : -10, // Slight shift left or right
+                    y: 0,
+                    duration: 0.2,
+                    ease: "power2.out",
+                });
+            }
+        },
+
+        onChange: (evt) => {
+            // Smoothly rearrange cards as the dragged card is moved
+            const { from, to } = evt;
+            gsap.to(to.children, {
+                duration: 0.2,
+                ease: "power2.out",
+            });
+        },
+
+        onEnd: (evt) => {
+            // Reset dragged card appearance
+            gsap.to(evt.item, { scale: 1, zIndex: 1, boxShadow: "none", duration: 0.2 });
+            evt.item.classList.remove("dragging");
+
+            // Animate all cards back into their proper positions
+            animateReorder();
+        },
+    });
+
+    // Animate all cards into their new positions after dragging ends
+    function animateReorder() {
+        const cards = Array.from(bentoBox.children);
+
+        cards.forEach((card) => {
+            gsap.to(card, {
+                x: 0, // Reset horizontal movement
+                y: 0, // Reset vertical movement
+                duration: 0.3,
+                ease: "power2.out",
+            });
+        });
+    }
+</script>
+
+
+</body>
+</html>
